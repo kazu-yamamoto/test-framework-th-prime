@@ -4,7 +4,7 @@
   Template Haskell to generate defaultMain with a list of "Test" from
   \"doc_test\", \"case_*\", and \"prop_\".
 
-  An example of source code:
+  An example of source code (Data.MySet.hs):
 
   > { -| Creating a set from a list. O(N log N)
   >
@@ -19,7 +19,7 @@
   > fromList :: Ord a => [a] -> RBTree a
   > fromList = foldl' (flip insert) empty
 
-  An example of test code:
+  An example of test code in the src directory (src/Test.hs):
 
   > module Main where
   >
@@ -46,6 +46,8 @@
   >     ordered _         = True
   >
   > case_xxx
+
+  > % runghc Test.hs -i..
 
   This code is based on Test.Framework.TH by Oscar Finnsson and Emil Nordling.
 -}
