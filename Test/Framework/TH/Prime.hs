@@ -2,9 +2,9 @@
 
 {-|
   Template Haskell to generate defaultMain with a list of "Test" from
-  \"doc_test\", \"case_*\", and \"prop_\".
+  \"doc_test\", \"case_<somthing>\", and \"prop_<somthing>\".
 
-  An example of source code (Data.MySet.hs):
+  An example of source code (Data/MySet.hs):
 
   > { -| Creating a set from a list. O(N log N)
   >
@@ -19,7 +19,9 @@
   > fromList :: Ord a => [a] -> RBTree a
   > fromList = foldl' (flip insert) empty
 
-  An example of test code in the src directory (src/Test.hs):
+  The spaces of comment symbols are due to limitation of haddock.
+
+  An example of test code in the src directory (test/Test.hs):
 
   > module Main where
   >
@@ -50,10 +52,15 @@
 
   And run:
 
-  > % runghc Test.hs -i..
+  > test% runghc -i.. Test.hs
 
   This code is based on Test.Framework.TH by Oscar Finnsson and Emil Nordling
   and the author integrated doctest.
+
+  Examples in haddock document is only used as unit tests at this
+  moment. I hope that properties of QuickCheck2 can also be specified in
+  haddock document in the future. I guess it's Haskell way of Behavior
+  Driven Development.
 
 -}
 
