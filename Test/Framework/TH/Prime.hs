@@ -1,5 +1,55 @@
 {-# LANGUAGE QuasiQuotes, TemplateHaskell #-}
 
+{-|
+  Template Haskell to generate defaultMain with a list of "Test" from
+  \"doc_test\", \"case_*\", and \"prop_\".
+
+  An example of source code:
+
+  > { -| Creating a set from a list. O(N log N)
+  >
+  > >>> empty == fromList []
+  > True
+  > >>> singleton 'a' == fromList ['a']
+  > True
+  > >>> fromList [5,3,5] == fromList [5,3]
+  > True
+  > - }
+  >
+  > fromList :: Ord a => [a] -> RBTree a
+  > fromList = foldl' (flip insert) empty
+
+  An example of test code:
+
+  > module Main where
+  >
+  > import Test.Framework.TH.Prime
+  > import Test.Framework.Providers.DocTest
+  > import Test.Framework.Providers.HUnit
+  > import Test.Framework.Providers.QuickCheck2
+  > import Test.QuickCheck2
+  > import Test.HUnit
+  >
+  > import Data.MySet
+  >
+  > main :: IO ()
+  > main = $(defaultMainGenerator)
+  >
+  > doc_test :: DocTests
+  > doc_test = docTest ["../Data/MySet.hs"] ["-i.."]
+  >
+  > prop_toList :: [Int] -> Bool
+  > prop_toList xs = ordered ys
+  >   where
+  >     ys = toList . fromList $ xs
+  >     ordered (x:y:xys) = x <= y && ordered (y:xys)
+  >     ordered _         = True
+  >
+  > case_xxx
+
+  This code is based on Test.Framework.TH by Oscar Finnsson and Emil Nordling.
+-}
+
 module Test.Framework.TH.Prime (
   defaultMainGenerator,
   DocTests
@@ -13,10 +63,15 @@ import Test.Framework.Providers.API
 
 ----------------------------------------------------------------
 
+-- | Type for \"doc_test\".
 type DocTests = IO Test
 
 ----------------------------------------------------------------
 
+{-|
+  Generating defaultMain with a list of "Test" from \"doc_test\",
+  \"case_*\", and \"prop_\".
+-}
 defaultMainGenerator :: ExpQ
 defaultMainGenerator = do
     defined <- isDefined docTestKeyword
