@@ -45,11 +45,16 @@
   >     ordered (x:y:xys) = x <= y && ordered (y:xys)
   >     ordered _         = True
   >
-  > case_xxx
+  > case_ticket4242 :: Assertion
+  > case_ticket4242 = (valid $ deleteMin $ deleteMin $ fromList [0,2,5,1,6,4,8,9,7,11,10,3]) @?= True
+
+  And run:
 
   > % runghc Test.hs -i..
 
-  This code is based on Test.Framework.TH by Oscar Finnsson and Emil Nordling.
+  This code is based on Test.Framework.TH by Oscar Finnsson and Emil Nordling
+  and the author integrated doctest.
+
 -}
 
 module Test.Framework.TH.Prime (
