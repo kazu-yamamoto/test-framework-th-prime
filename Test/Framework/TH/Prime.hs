@@ -54,9 +54,6 @@
 
   > test% runghc -i.. Test.hs
 
-  This code is based on Test.Framework.TH by Oscar Finnsson and Emil Nordling
-  and the author integrated doctest.
-
   Examples in haddock document is only used as unit tests at this
   moment. I hope that properties of QuickCheck2 can also be specified in
   haddock document in the future. I guess it's Haskell way of Behavior
@@ -65,15 +62,16 @@
 -}
 
 module Test.Framework.TH.Prime (
-  defaultMainGenerator,
-  DocTests
-) where
+    defaultMainGenerator
+  , DocTests
+  ) where
 
-import Language.Haskell.Extract
-import Language.Haskell.TH
-import Language.Haskell.TH.Syntax
+import Control.Applicative
+import Language.Haskell.TH hiding (Match)
+import Language.Haskell.TH.Syntax hiding (Match)
 import Test.Framework (defaultMain)
 import Test.Framework.Providers.API
+import Test.Framework.TH.Prime.Parser
 
 ----------------------------------------------------------------
 
@@ -89,50 +87,29 @@ type DocTests = IO Test
 defaultMainGenerator :: ExpQ
 defaultMainGenerator = do
     defined <- isDefined docTestKeyword
-    if defined
-       then [| do TestGroup _ doctests <- $(docListGenerator)
-                  defaultMain [ testGroup $(locationModule) $ doctests ++ $(caseListGenerator) ++ $(propListGenerator) ] |]
-       else [| defaultMain [ testGroup $(locationModule) $ $(caseListGenerator) ++ $(propListGenerator) ] |]
-
-----------------------------------------------------------------
--- code from Test.Framework.TH of test-framework-th
--- by Oscar Finnsson & Emil Nordling
-
-listGenerator :: String -> String -> ExpQ
-listGenerator beginning funcName =
-  functionExtractorMap beginning (applyNameFix funcName)
-
-propListGenerator :: ExpQ
-propListGenerator = listGenerator "^prop_" "testProperty"
-
-caseListGenerator :: ExpQ
-caseListGenerator = listGenerator "^case_" "testCase"
-
-----------------------------------------------------------------
-
--- | The same as
---   e.g. \n f -> testProperty (fixName n) f
-applyNameFix :: String -> ExpQ
-applyNameFix n =
-  do fn <- [|fixName|]
-     return $ LamE [VarP (mkName "n")] (AppE (VarE (mkName n)) (AppE (fn) (VarE (mkName "n"))))
-
-fixName :: String -> String
-fixName name = replace '_' ' ' $ drop 5 name
-
-replace :: Eq a => a -> a -> [a] -> [a]
-replace b v = map (\i -> if b == i then v else i)
+    if defined then [|
+        do TestGroup _ doctests <- $(docTests)
+           let (unittests, proptests) = $(unitPropTests)
+           defaultMain [ testGroup "Doc tests" doctests
+                       , testGroup "Unit tests" unittests
+                       , testGroup "Property tests" proptests
+                       ]
+      |] else [|
+        do let (unittests, proptests) = $(unitPropTests)
+           defaultMain [ testGroup "Unit tests" unittests
+                       , testGroup "Property tests" proptests
+                       ]
+      |]
 
 ----------------------------------------------------------------
 -- code from Hiromi Ishii
 
 isDefined :: String -> Q Bool
-isDefined n = do
-  return False  `recover` do
+isDefined n = return False `recover` do
     VarI (Name _ flavour) _ _ _ <- reify (mkName n)
-    loc <- location
+    modul <- loc_module <$> location
     case flavour of
-      NameG ns _ mdl -> return (ns == VarName && modString mdl == loc_module loc)
+      NameG ns _ mdl -> return (ns == VarName && modString mdl == modul)
       _              -> return False
 
 ----------------------------------------------------------------
@@ -140,5 +117,5 @@ isDefined n = do
 docTestKeyword :: String
 docTestKeyword = "doc_test"
 
-docListGenerator :: ExpQ
-docListGenerator = varE $ mkName docTestKeyword
+docTests :: ExpQ
+docTests = return $ symbol docTestKeyword

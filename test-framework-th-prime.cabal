@@ -1,5 +1,5 @@
 Name:                   test-framework-th-prime
-Version:                0.0.0
+Version:                0.0.1
 Author:                 Kazu Yamamoto <kazu@iij.ad.jp>
 Maintainer:             Kazu Yamamoto <kazu@iij.ad.jp>
 License:                BSD3
@@ -16,7 +16,9 @@ library
   else
     GHC-Options:        -Wall
   Exposed-Modules:      Test.Framework.TH.Prime
-  Build-Depends:        base >= 4 && < 5, test-framework, language-haskell-extract >= 0.2.1, haskell-src-exts, regex-posix, template-haskell
+  Other-Modules:        Test.Framework.TH.Prime.Parser
+  Build-Depends:        base >= 4 && < 5, test-framework,
+                        cpphs >= 0.2.1, haskell-src-exts, template-haskell
 
 Source-Repository head
   Type:                 git
