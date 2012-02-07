@@ -2,7 +2,7 @@
 
 {-|
   Template Haskell to generate defaultMain with a list of "Test" from
-  \"doc_test\", \"case_<somthing>\", and \"prop_<somthing>\".
+  \"doc_test\", \"case_\<somthing\>\", and \"prop_\<somthing\>\".
 
   An example of source code (Data/MySet.hs):
 
@@ -23,6 +23,7 @@
 
   An example of test code in the src directory (test/Test.hs):
 
+  > { -# LANGUAGE TemplateHaskell #- }
   > module Main where
   >
   > import Test.Framework.TH.Prime
@@ -54,7 +55,21 @@
 
   > test% runghc -i.. Test.hs
 
-  Examples in haddock document is only used as unit tests at this
+  "defaultMainGenerator" generates the following:
+
+  > main = do
+  >     TestGroup _ doctests <- docTest ["../Data/MySet.hs"] ["-i.."]
+  >     defaultMain [
+  >         testGroup "Doc tests" doctests
+  >       , testGroup "Unit tests" [
+  >              testCase "case_ticket4242" case_ticket4242
+  >            ]
+  >       , testGroup "Property tests" [
+  >              testProperty "prop_toList" prop_toList
+  >            ]
+  >       ]
+
+  Note: examples in haddock document is only used as unit tests at this
   moment. I hope that properties of QuickCheck2 can also be specified in
   haddock document in the future. I guess it's Haskell way of Behavior
   Driven Development.
