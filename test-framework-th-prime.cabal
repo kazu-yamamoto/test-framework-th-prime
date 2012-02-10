@@ -1,5 +1,5 @@
 Name:                   test-framework-th-prime
-Version:                0.0.1
+Version:                0.0.2
 Author:                 Kazu Yamamoto <kazu@iij.ad.jp>
 Maintainer:             Kazu Yamamoto <kazu@iij.ad.jp>
 License:                BSD3
@@ -10,16 +10,20 @@ Description:            Automatically generates a Test list for
 Category:               Testing
 Cabal-Version:          >= 1.6
 Build-Type:             Simple
-library
+
+Library
   if impl(ghc >= 6.12)
     GHC-Options:        -Wall -fno-warn-unused-do-bind
   else
     GHC-Options:        -Wall
   Exposed-Modules:      Test.Framework.TH.Prime
   Other-Modules:        Test.Framework.TH.Prime.Parser
-  Build-Depends:        base >= 4 && < 5, test-framework,
-                        cpphs >= 0.2.1, haskell-src-exts, template-haskell
+  Build-Depends:        base >= 4 && < 5
+                      , cpphs >= 0.2.1
+                      , haskell-src-exts
+                      , template-haskell
+                      , test-framework
 
 Source-Repository head
   Type:                 git
-  Location:             https://github.com/kazu-yamamoto/test-framework-th-prime
+  Location:             git clone git://github.com/kazu-yamamoto/test-framework-th-prime.git
