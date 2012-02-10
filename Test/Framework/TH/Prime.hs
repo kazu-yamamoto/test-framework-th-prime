@@ -1,80 +1,76 @@
 {-# LANGUAGE QuasiQuotes, TemplateHaskell #-}
 
-{-|
-  Template Haskell to generate defaultMain with a list of "Test" from
-  \"doc_test\", \"case_\<somthing\>\", and \"prop_\<somthing\>\".
-
-  An example of source code (Data/MySet.hs):
-
-  > { -| Creating a set from a list. O(N log N)
-  >
-  > >>> empty == fromList []
-  > True
-  > >>> singleton 'a' == fromList ['a']
-  > True
-  > >>> fromList [5,3,5] == fromList [5,3]
-  > True
-  > - }
-  >
-  > fromList :: Ord a => [a] -> RBTree a
-  > fromList = foldl' (flip insert) empty
-
-  The spaces of comment symbols are due to limitation of haddock.
-
-  An example of test code in the src directory (test/Test.hs):
-
-  > { -# LANGUAGE TemplateHaskell #- }
-  > module Main where
-  >
-  > import Test.Framework.TH.Prime
-  > import Test.Framework.Providers.DocTest
-  > import Test.Framework.Providers.HUnit
-  > import Test.Framework.Providers.QuickCheck2
-  > import Test.QuickCheck2
-  > import Test.HUnit
-  >
-  > import Data.MySet
-  >
-  > main :: IO ()
-  > main = $(defaultMainGenerator)
-  >
-  > doc_test :: DocTests
-  > doc_test = docTest ["../Data/MySet.hs"] ["-i.."]
-  >
-  > prop_toList :: [Int] -> Bool
-  > prop_toList xs = ordered ys
-  >   where
-  >     ys = toList . fromList $ xs
-  >     ordered (x:y:xys) = x <= y && ordered (y:xys)
-  >     ordered _         = True
-  >
-  > case_ticket4242 :: Assertion
-  > case_ticket4242 = (valid $ deleteMin $ deleteMin $ fromList [0,2,5,1,6,4,8,9,7,11,10,3]) @?= True
-
-  And run:
-
-  > test% runghc -i.. Test.hs
-
-  "defaultMainGenerator" generates the following:
-
-  > main = do
-  >     TestGroup _ doctests <- docTest ["../Data/MySet.hs"] ["-i.."]
-  >     defaultMain [
-  >         testGroup "Doc tests" doctests
-  >       , testGroup "Unit tests" [
-  >              testCase "case_ticket4242" case_ticket4242
-  >            ]
-  >       , testGroup "Property tests" [
-  >              testProperty "prop_toList" prop_toList
-  >            ]
-  >       ]
-
-  Note: examples in haddock document is only used as unit tests at this
-  moment. I hope that properties of QuickCheck2 can also be specified in
-  haddock document in the future. I guess it's Haskell way of Behavior
-  Driven Development.
-
--}
+-- |
+-- Template Haskell to generate defaultMain with a list of "Test" from
+-- \"doc_test\", \"case_\<somthing\>\", and \"prop_\<somthing\>\".
+--
+-- An example of source code (Data/MySet.hs):
+--
+-- > {-| Creating a set from a list. O(N log N)
+-- >
+-- > >>> empty == fromList []
+-- > True
+-- > >>> singleton 'a' == fromList ['a']
+-- > True
+-- > >>> fromList [5,3,5] == fromList [5,3]
+-- > True
+-- > -}
+-- >
+-- > fromList :: Ord a => [a] -> RBTree a
+-- > fromList = foldl' (flip insert) empty
+--
+-- An example of test code in the src directory (test/Test.hs):
+--
+-- > {-# LANGUAGE TemplateHaskell #-}
+-- > module Main where
+-- >
+-- > import Test.Framework.TH.Prime
+-- > import Test.Framework.Providers.DocTest
+-- > import Test.Framework.Providers.HUnit
+-- > import Test.Framework.Providers.QuickCheck2
+-- > import Test.QuickCheck2
+-- > import Test.HUnit
+-- >
+-- > import Data.MySet
+-- >
+-- > main :: IO ()
+-- > main = $(defaultMainGenerator)
+-- >
+-- > doc_test :: DocTests
+-- > doc_test = docTest ["../Data/MySet.hs"] ["-i.."]
+-- >
+-- > prop_toList :: [Int] -> Bool
+-- > prop_toList xs = ordered ys
+-- >   where
+-- >     ys = toList . fromList $ xs
+-- >     ordered (x:y:xys) = x <= y && ordered (y:xys)
+-- >     ordered _         = True
+-- >
+-- > case_ticket4242 :: Assertion
+-- > case_ticket4242 = (valid $ deleteMin $ deleteMin $ fromList [0,2,5,1,6,4,8,9,7,11,10,3]) @?= True
+--
+--  And run:
+--
+-- > test% runghc -i.. Test.hs
+--
+-- "defaultMainGenerator" generates the following:
+--
+-- > main = do
+-- >     TestGroup _ doctests <- docTest ["../Data/MySet.hs"] ["-i.."]
+-- >     defaultMain [
+-- >         testGroup "Doc tests" doctests
+-- >       , testGroup "Unit tests" [
+-- >              testCase "case_ticket4242" case_ticket4242
+-- >            ]
+-- >       , testGroup "Property tests" [
+-- >              testProperty "prop_toList" prop_toList
+-- >            ]
+-- >       ]
+--
+-- Note: examples in haddock document is only used as unit tests at this
+-- moment. I hope that properties of QuickCheck2 can also be specified in
+-- haddock document in the future. I guess it's Haskell way of Behavior
+-- Driven Development.
 
 module Test.Framework.TH.Prime (
     defaultMainGenerator
@@ -97,7 +93,7 @@ type DocTests = IO Test
 
 {-|
   Generating defaultMain with a list of "Test" from \"doc_test\",
-  \"case_*\", and \"prop_\".
+  \"case_\<somthing\>\", and \"prop_\<somthing\>\".
 -}
 defaultMainGenerator :: ExpQ
 defaultMainGenerator = do
