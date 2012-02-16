@@ -71,9 +71,11 @@ isPatBind (PatBind _ _ _ _ _) = True
 isPatBind _                   = False
 
 fromPatBind :: Decl -> String
-fromPatBind (PatBind _ (PVar (Ident name)) _ _ _) = name
+fromPatBind (PatBind _ (PVar (Ident  name)) _ _ _) = name
+fromPatBind (PatBind _ (PVar (Symbol name)) _ _ _) = name
 fromPatBind _ = error "fromPatBind"
 
 fromFunBind :: Decl -> String
-fromFunBind (FunBind (Match _ (Ident name) _ _ _ _:_)) = name
+fromFunBind (FunBind (Match _ (Ident  name) _ _ _ _:_)) = name
+fromFunBind (FunBind (Match _ (Symbol name) _ _ _ _:_)) = name
 fromFunBind _ = error "fromFunBind"
