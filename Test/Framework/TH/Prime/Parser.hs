@@ -58,7 +58,11 @@ parseTest file = do
   where
     pack = unlines . tail . map snd
     go = cppIfdef "dummy" [] [] defaultBoolOptions
-    opt = defaultParseMode {extensions = [TemplateHaskell]}
+    opt = defaultParseMode {
+        extensions = [TemplateHaskell]
+      -- to prevent "Ambiguous infix expression"
+      , fixities = Nothing
+      }
 
 ----------------------------------------------------------------
 
