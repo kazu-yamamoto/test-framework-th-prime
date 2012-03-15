@@ -54,12 +54,23 @@ getTests file = do
 parseTest :: FilePath -> IO (ParseResult Module)
 parseTest file = do
     raw <- readFile file
-    parseModuleWithMode opt . pack <$> go raw
+    parseModuleWithMode (opt raw) . pack <$> go raw
   where
     pack = unlines . tail . map snd
     go = cppIfdef "dummy" [] [] defaultBoolOptions
-    opt = defaultParseMode {
-        extensions = [TemplateHaskell]
+    exts raw =
+      case getTopPragmas raw of
+        ParseOk pragmas ->
+          [ toExtention name
+          | LanguagePragma _ names <- pragmas, name <- names]
+        ParseFailed _ _ ->
+          []
+      where
+        toExtention = read . toStr
+        toStr (Ident str) = str
+        toStr (Symbol str) = str
+    opt raw = defaultParseMode {
+        extensions = nub $ [TemplateHaskell] ++ exts raw
       -- to prevent "Ambiguous infix expression"
       , fixities = Nothing
       }
