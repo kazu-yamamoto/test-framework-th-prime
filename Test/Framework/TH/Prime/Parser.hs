@@ -70,7 +70,7 @@ parseTest file = do
         toStr (Ident str) = str
         toStr (Symbol str) = str
     opt raw = defaultParseMode {
-        extensions = nub $ [TemplateHaskell] ++ exts raw
+        extensions = nub $ TemplateHaskell : exts raw
       -- to prevent "Ambiguous infix expression"
       , fixities = Nothing
       }
