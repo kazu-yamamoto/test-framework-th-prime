@@ -25,7 +25,7 @@
 -- > module Main where
 -- >
 -- > import Test.Framework.TH.Prime
--- > import Test.Framework.Providers.DocTest
+-- > import Test.Framework.Providers.DocTest.Prime
 -- > import Test.Framework.Providers.HUnit
 -- > import Test.Framework.Providers.QuickCheck2
 -- > import Test.QuickCheck2
@@ -36,7 +36,7 @@
 -- > main :: IO ()
 -- > main = $(defaultMainGenerator)
 -- >
--- > doc_test :: DocTests
+-- > doc_test :: DocTest
 -- > doc_test = docTest ["../Data/MySet.hs"] ["-i.."]
 -- >
 -- > prop_toList :: [Int] -> Bool
@@ -56,9 +56,9 @@
 -- "defaultMainGenerator" generates the following:
 --
 -- > main = do
--- >     TestGroup _ doctests <- docTest ["../Data/MySet.hs"] ["-i.."]
+-- >     doctest <- docTest ["../Data/MySet.hs"] ["-i.."]
 -- >     defaultMain [
--- >         testGroup "Doc tests" doctests
+-- >         doctest
 -- >       , testGroup "Unit tests" [
 -- >              testCase "case_ticket4242" case_ticket4242
 -- >            ]
@@ -74,7 +74,6 @@
 
 module Test.Framework.TH.Prime (
     defaultMainGenerator
-  , DocTests
   ) where
 
 import Control.Applicative
@@ -86,11 +85,6 @@ import Test.Framework.TH.Prime.Parser
 
 ----------------------------------------------------------------
 
--- | Type for \"doc_test\".
-type DocTests = IO Test
-
-----------------------------------------------------------------
-
 {-|
   Generating defaultMain with a list of "Test" from \"doc_test\",
   \"case_\<somthing\>\", and \"prop_\<somthing\>\".
@@ -99,9 +93,9 @@ defaultMainGenerator :: ExpQ
 defaultMainGenerator = do
     defined <- isDefined docTestKeyword
     if defined then [|
-        do TestGroup _ doctests <- $(docTests)
+        do doctest <- $(docTests)
            let (unittests, proptests) = $(unitPropTests)
-           defaultMain [ testGroup "Doc tests" doctests
+           defaultMain [ doctest
                        , testGroup "Unit tests" unittests
                        , testGroup "Property tests" proptests
                        ]
