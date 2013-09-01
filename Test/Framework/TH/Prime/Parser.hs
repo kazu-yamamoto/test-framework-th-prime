@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 module Test.Framework.TH.Prime.Parser (
     unitPropTests
   , symbol, string
@@ -70,7 +71,11 @@ parseTest file = do
         toStr (Ident str) = str
         toStr (Symbol str) = str
     opt raw = defaultParseMode {
+#if MIN_VERSION_haskell_src_exts(1, 14, 0)
+        extensions = map UnknownExtension $ nub $ "TemplateHaskell" : exts raw
+#else
         extensions = nub $ TemplateHaskell : exts raw
+#endif
       -- to prevent "Ambiguous infix expression"
       , fixities = Nothing
       }
