@@ -67,12 +67,16 @@ parseTest file = do
         ParseFailed _ _ ->
           []
       where
+#if MIN_VERSION_haskell_src_exts(1, 14, 0)
+        toExtention = parseExtension . toStr
+#else
         toExtention = read . toStr
+#endif
         toStr (Ident str) = str
         toStr (Symbol str) = str
     opt raw = defaultParseMode {
 #if MIN_VERSION_haskell_src_exts(1, 14, 0)
-        extensions = map UnknownExtension $ nub $ "TemplateHaskell" : exts raw
+        extensions = nub $ EnableExtension TemplateHaskell : exts raw
 #else
         extensions = nub $ TemplateHaskell : exts raw
 #endif
