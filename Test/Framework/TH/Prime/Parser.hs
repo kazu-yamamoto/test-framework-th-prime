@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 module Test.Framework.TH.Prime.Parser (
     unitPropTests
   , symbol, string
@@ -66,11 +67,19 @@ parseTest file = do
         ParseFailed _ _ ->
           []
       where
+#if MIN_VERSION_haskell_src_exts(1, 14, 0)
+        toExtention = parseExtension . toStr
+#else
         toExtention = read . toStr
+#endif
         toStr (Ident str) = str
         toStr (Symbol str) = str
     opt raw = defaultParseMode {
+#if MIN_VERSION_haskell_src_exts(1, 14, 0)
+        extensions = nub $ EnableExtension TemplateHaskell : exts raw
+#else
         extensions = nub $ TemplateHaskell : exts raw
+#endif
       -- to prevent "Ambiguous infix expression"
       , fixities = Nothing
       }
