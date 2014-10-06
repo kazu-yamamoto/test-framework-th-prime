@@ -91,12 +91,17 @@ isFunBind (FunBind _) = True
 isFunBind _           = False
 
 isPatBind :: Decl -> Bool
-isPatBind (PatBind _ _ _ _ _) = True
+isPatBind PatBind{} = True
 isPatBind _                   = False
 
 fromPatBind :: Decl -> String
+#if MIN_VERSION_haskell_src_exts(1, 16, 0)
+fromPatBind (PatBind _ (PVar (Ident  name)) _ _) = name
+fromPatBind (PatBind _ (PVar (Symbol name)) _ _) = name
+#else
 fromPatBind (PatBind _ (PVar (Ident  name)) _ _ _) = name
 fromPatBind (PatBind _ (PVar (Symbol name)) _ _ _) = name
+#endif
 fromPatBind _ = error "fromPatBind"
 
 fromFunBind :: Decl -> String
