@@ -10,7 +10,7 @@ import Language.Haskell.Exts.Extension
 import Language.Haskell.Exts.Parser
 import Language.Haskell.Exts.Syntax hiding (VarName, Exp)
 import Language.Haskell.TH hiding (Match)
-import Language.Preprocessor.Cpphs
+import Language.Preprocessor.Cpphs hiding (Ident)
 
 ----------------------------------------------------------------
 
