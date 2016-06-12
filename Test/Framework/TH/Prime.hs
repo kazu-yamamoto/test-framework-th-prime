@@ -77,7 +77,9 @@ module Test.Framework.TH.Prime (
   , DocTests
   ) where
 
+#if __GLASGOW_HASKELL__ < 710
 import Control.Applicative
+#endif
 import Language.Haskell.TH hiding (Match)
 import Language.Haskell.TH.Syntax hiding (Match)
 import Test.Framework (defaultMain)
