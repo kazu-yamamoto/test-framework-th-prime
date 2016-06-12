@@ -1,4 +1,4 @@
-{-# LANGUAGE QuasiQuotes, TemplateHaskell #-}
+{-# LANGUAGE CPP, QuasiQuotes, TemplateHaskell #-}
 
 -- |
 -- Template Haskell to generate defaultMain with a list of "Test" from
@@ -117,7 +117,11 @@ defaultMainGenerator = do
 
 isDefined :: String -> Q Bool
 isDefined n = return False `recover` do
+#if MIN_VERSION_template_haskell(2, 11, 0)
+    VarI (Name _ flavour) _ _ <- reify (mkName n)
+#else
     VarI (Name _ flavour) _ _ _ <- reify (mkName n)
+#endif
     modul <- loc_module <$> location
     case flavour of
       NameG ns _ mdl -> return (ns == VarName && modString mdl == modul)
